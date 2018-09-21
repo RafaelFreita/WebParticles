@@ -151,7 +151,7 @@ Particle.prototype.linearMovement = function () {
 }
 
 Particle.prototype.circularMovement = function () {
-  var ageToRad = this.lifetime / this.lifespan * 2 * PI * (this.movement.speed || 1);
+  var ageToRad = this.lifetime / this.lifespan * 2 * PI * (this.movement.circles || 1);
   this.position = createVector(
     this.initialPosition.x + cos(ageToRad) * this.movement.radius,
     this.initialPosition.y + sin(ageToRad) * this.movement.radius

@@ -43,5 +43,11 @@ var ParticleSystemControl = function () {
   this.maxAccelerationX = 0.1;
   this.minAccelerationY = 0.01;
   this.maxAccelerationY = 0.1;
+  
+  //////////////////
+  // Radius / Circles
+  //////////////////
+  this.radius = 50;
+  this.circles = 1;
 
 };

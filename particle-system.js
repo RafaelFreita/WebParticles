@@ -7,8 +7,9 @@ var ParticleSystem = function (position) {
   this.originY = position.copy().y;
   this.particles = [];
   this.formats = ['Ellipse', 'Rect', 'Triangle'];
-  this.emissorType = formats[0];
+  this.emissorType = emissorTypes[0];
   this.oldestInFront = false;
+  this.emissionRadius = 50;
 
   this.particlesPerUpdate = 1;
   this.particleMovement = movementTypes[0];
@@ -25,10 +26,11 @@ var ParticleSystem = function (position) {
 
   this.systemFolder.add(this, 'particlesPerUpdate', 0, 10).step(1);
   this.systemFolder.add(this, 'oldestInFront');
-
+  
   this.emissorFolder = this.systemFolder.addFolder('Emissor');
   this.emissorFolder.add(this, 'emissorType', emissorTypes);
-
+  this.emissorFolder.add(this, 'emissionRadius').min(0);
+  
   this.particlesFolder = this.gui.addFolder('Particles');
   this.particlesFolder.add(this.control, 'size', 1, 300);
   this.particlesFolder.add(this.control, 'sizeLifetime');
@@ -67,6 +69,10 @@ var ParticleSystem = function (position) {
   this.accelerationFolder.add(this.control, 'maxAccelerationX');
   this.accelerationFolder.add(this.control, 'minAccelerationY');
   this.accelerationFolder.add(this.control, 'maxAccelerationY');
+
+  this.movementFolder.add(this.control, 'radius');
+  this.movementFolder.add(this.control, 'circles').min(0);
+
 };
 
 ParticleSystem.prototype.addParticle = function () {
@@ -106,8 +112,8 @@ ParticleSystem.prototype.addParticle = function () {
 
         movement: {
           type: this.particleMovement,
-          radius: 50,
-          circles: 3
+          radius: this.control.radius,
+          circles: this.control.circles
         }
       }
     ));
@@ -154,9 +160,9 @@ ParticleSystem.prototype.run = function () {
  */
 ParticleSystem.prototype.emitParticle = function () {
   switch (this.emissorType) {
-    case this.emissorType[0]:
+    case emissorTypes[0]:
       return this.pointEmissor();
-    case this.emissorType[1]:
+    case emissorTypes[1]:
       return this.circularEmissor();
     default:
       return this.pointEmissor();
@@ -175,7 +181,7 @@ ParticleSystem.prototype.pointEmissor = function () {
 
   return new ParticleSpawn(
     createVector(this.originX, this.originY),
-    particleDirection.copy().mult(particleSpeed),
+    particleDirection.copy().mult((particleSpeed)?particleSpeed:1),
     particleAcceleration,
   );
 }
@@ -183,7 +189,9 @@ ParticleSystem.prototype.pointEmissor = function () {
 ParticleSystem.prototype.circularEmissor = function () {
   var newParticle = this.pointEmissor();
 
-  // TODO: Move particle position based on it's direction * radius (radius can also vary)
+  var velocityCopy = newParticle.velocity.copy();
+
+  newParticle.position = p5.Vector.add(newParticle.position, velocityCopy.normalize().mult(this.emissionRadius));
 
   return newParticle;
 }
